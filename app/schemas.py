@@ -8,35 +8,39 @@ class SpotBase(BaseModel):
     note: Optional[str] = None
     image_url: Optional[str] = None
     place_name: Optional[str] = None
-    user_id: int
 
 class SpotCreate(SpotBase):
-    pass  # Same as SpotBase for now
+    user_id: int
 
 class SpotOut(SpotBase):
     id: int
+    user_id: int
     created_at: datetime
 
     class Config:
-        orm_mode = True
-# Base fields for input and output
-class UserBase(BaseModel):
+        from_attributes = True
+
+class UserCreate(BaseModel):
     first_name: str
     last_name: str
     email: str
+    password: str
     phone_number: Optional[str] = None
-    is_signed_up_for_emails: Optional[bool] = False
-    role: Optional[str] = "user"
+    is_signed_up_for_emails: bool = False
+    is_private: bool = False
+    role: str = "user"
 
-# What the client sends when registering
-class UserCreate(UserBase):
-    password: str  # plain password will be hashed on backend
-
-# What the API returns (doesn't include password)
-class UserOut(UserBase):
+class UserOut(BaseModel):
     id: int
+    first_name: str
+    last_name: str
+    email: str
+    phone_number: Optional[str]
+    is_signed_up_for_emails: bool
     is_active: bool
+    role: str
+    is_private: bool
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
