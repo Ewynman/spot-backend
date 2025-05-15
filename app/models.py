@@ -3,9 +3,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .db import Base
 
-# ------------------------------------------------------
+# ----------------------------------------
 # Many-to-many association for followers
-# ------------------------------------------------------
+# ----------------------------------------
 followers = Table(
     "followers",
     Base.metadata,
@@ -13,24 +13,24 @@ followers = Table(
     Column("followed_id", Integer, ForeignKey("users.id"))
 )
 
-# ------------------------------------------------------
-# NEW: FriendRequest model (pending approval system)
-# ------------------------------------------------------
+# ----------------------------------------
+# FriendRequest model
+# ----------------------------------------
 class FriendRequest(Base):
     __tablename__ = "friend_requests"
 
     id = Column(Integer, primary_key=True, index=True)
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    status = Column(String, default="pending")  # values: pending, accepted, rejected
+    status = Column(String, default="pending")  # 'pending', 'accepted', 'rejected'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     from_user = relationship("User", foreign_keys=[from_user_id], back_populates="sent_requests")
     to_user = relationship("User", foreign_keys=[to_user_id], back_populates="received_requests")
 
-# ------------------------------------------------------
+# ----------------------------------------
 # Spot model
-# ------------------------------------------------------
+# ----------------------------------------
 class Spot(Base):
     __tablename__ = "spots"
 
@@ -45,13 +45,14 @@ class Spot(Base):
 
     owner = relationship("User", back_populates="spots")
 
-# ------------------------------------------------------
+# ----------------------------------------
 # User model
-# ------------------------------------------------------
+# ----------------------------------------
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, nullable=False)  # ✅ NEW
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
@@ -64,9 +65,9 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
+    # Relationships
     spots = relationship("Spot", back_populates="owner")
 
-    # Who I follow
     following = relationship(
         "User",
         secondary=followers,
@@ -75,6 +76,5 @@ class User(Base):
         backref="followers"
     )
 
-    # NEW: Friend request relationships
     sent_requests = relationship("FriendRequest", foreign_keys="[FriendRequest.from_user_id]", back_populates="from_user")
     received_requests = relationship("FriendRequest", foreign_keys="[FriendRequest.to_user_id]", back_populates="to_user")

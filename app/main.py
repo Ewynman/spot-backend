@@ -1,11 +1,19 @@
 from fastapi import FastAPI
-from .routes import spots
-from .routes import users
-from .routes import follow 
-from .routes import friends
+from fastapi.middleware.cors import CORSMiddleware
+
+from .routes import spots, users, follow, friends
 from .db import Base, engine
 
 app = FastAPI()
+
+# ✅ CORS middleware to allow mobile frontend to make API requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Replace with ["http://your-phone-ip:port"] in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ✅ Create tables on startup
 Base.metadata.create_all(bind=engine)

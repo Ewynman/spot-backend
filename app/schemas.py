@@ -21,26 +21,22 @@ class SpotOut(SpotBase):
         from_attributes = True
 
 class UserCreate(BaseModel):
+    username: str
     first_name: str
     last_name: str
     email: str
-    password: str
-    phone_number: Optional[str] = None
+    phone_number: str | None = None
     is_signed_up_for_emails: bool = False
-    is_private: bool = False
     role: str = "user"
+    password: str
 
 class UserOut(BaseModel):
     id: int
+    username: str
+    email: str
     first_name: str
     last_name: str
-    email: str
-    phone_number: Optional[str]
-    is_signed_up_for_emails: bool
-    is_active: bool
-    role: str
     is_private: bool
-    created_at: datetime
 
     class Config:
         from_attributes = True
